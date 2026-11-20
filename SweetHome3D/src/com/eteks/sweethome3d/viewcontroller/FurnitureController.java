@@ -527,25 +527,26 @@ public class FurnitureController implements Controller {
       // the following list
       List<HomePieceOfFurniture.SortableProperty> propertiesOrder = 
           Arrays.asList(new HomePieceOfFurniture.SortableProperty [] {
-              HomePieceOfFurniture.SortableProperty.CATALOG_ID, 
-              HomePieceOfFurniture.SortableProperty.NAME, 
-              HomePieceOfFurniture.SortableProperty.WIDTH,
-              HomePieceOfFurniture.SortableProperty.DEPTH,
-              HomePieceOfFurniture.SortableProperty.HEIGHT,
-              HomePieceOfFurniture.SortableProperty.X,
-              HomePieceOfFurniture.SortableProperty.Y,
-              HomePieceOfFurniture.SortableProperty.ELEVATION,
-              HomePieceOfFurniture.SortableProperty.ANGLE,
-              HomePieceOfFurniture.SortableProperty.LEVEL,
-              HomePieceOfFurniture.SortableProperty.COLOR,
-              HomePieceOfFurniture.SortableProperty.TEXTURE,
-              HomePieceOfFurniture.SortableProperty.MOVABLE,
-              HomePieceOfFurniture.SortableProperty.DOOR_OR_WINDOW,
-              HomePieceOfFurniture.SortableProperty.VISIBLE,
-              HomePieceOfFurniture.SortableProperty.PRICE,
-              HomePieceOfFurniture.SortableProperty.VALUE_ADDED_TAX_PERCENTAGE,
-              HomePieceOfFurniture.SortableProperty.VALUE_ADDED_TAX,
-              HomePieceOfFurniture.SortableProperty.PRICE_VALUE_ADDED_TAX_INCLUDED}); 
+                  HomePieceOfFurniture.SortableProperty.CATALOG_ID,
+                  HomePieceOfFurniture.SortableProperty.NAME,
+                  HomePieceOfFurniture.SortableProperty.WIDTH,
+                  HomePieceOfFurniture.SortableProperty.DEPTH,
+                  HomePieceOfFurniture.SortableProperty.HEIGHT,
+                  HomePieceOfFurniture.SortableProperty.VOLUME,
+                  HomePieceOfFurniture.SortableProperty.X,
+                  HomePieceOfFurniture.SortableProperty.Y,
+                  HomePieceOfFurniture.SortableProperty.ELEVATION,
+                  HomePieceOfFurniture.SortableProperty.ANGLE,
+                  HomePieceOfFurniture.SortableProperty.LEVEL,
+                  HomePieceOfFurniture.SortableProperty.COLOR,
+                  HomePieceOfFurniture.SortableProperty.TEXTURE,
+                  HomePieceOfFurniture.SortableProperty.MOVABLE,
+                  HomePieceOfFurniture.SortableProperty.DOOR_OR_WINDOW,
+                  HomePieceOfFurniture.SortableProperty.VISIBLE,
+                  HomePieceOfFurniture.SortableProperty.PRICE,
+                  HomePieceOfFurniture.SortableProperty.VALUE_ADDED_TAX_PERCENTAGE,
+                  HomePieceOfFurniture.SortableProperty.VALUE_ADDED_TAX,
+                  HomePieceOfFurniture.SortableProperty.PRICE_VALUE_ADDED_TAX_INCLUDED});
       int propertyIndex = propertiesOrder.indexOf(furnitureProperty) - 1;
       if (propertyIndex > 0) {      
         while (propertyIndex > 0) {
