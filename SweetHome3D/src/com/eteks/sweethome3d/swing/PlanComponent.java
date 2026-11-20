@@ -102,6 +102,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -2002,12 +2005,76 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
     }
     return strokeWidth;
   }
-  
+
   /**
-   * Prints this component plan at the scale given in the home print attributes or at a scale 
-   * that makes it fill <code>pageFormat</code> imageable size if this attribute is <code>null</code>.
+   * Prints one page per viewable level and restores the selected level.
+   * Homes without levels retain their original printing behavior.
    */
   public int print(Graphics g, PageFormat pageFormat, int pageIndex) {
+    if (!EventQueue.isDispatchThread()) {
+      FutureTask<Integer> printTask = new FutureTask<Integer>(
+              new Callable<Integer>() {
+                public Integer call() {
+                  return print(g, pageFormat, pageIndex);
+                }
+              });
+      EventQueue.invokeLater(printTask);
+
+      boolean interrupted = false;
+      try {
+        while (true) {
+          try {
+            return printTask.get();
+          } catch (InterruptedException ex) {
+            interrupted = true;
+          } catch (ExecutionException ex) {
+            Throwable cause = ex.getCause();
+            if (cause instanceof RuntimeException) {
+              throw (RuntimeException)cause;
+            }
+            if (cause instanceof Error) {
+              throw (Error)cause;
+            }
+            throw new IllegalStateException("Couldn't print plan", cause);
+          }
+        }
+      } finally {
+        if (interrupted) {
+          Thread.currentThread().interrupt();
+        }
+      }
+    }
+    if (pageIndex < 0) {
+      return NO_SUCH_PAGE;
+    }
+
+    if (this.home.getLevels().isEmpty()) {
+      return printSelectedLevel(g, pageFormat, pageIndex, false);
+    }
+
+    List<Level> printableLevels = new ArrayList<Level>();
+    for (Level level : this.home.getLevels()) {
+      if (level.isViewable()) {
+        printableLevels.add(level);
+      }
+    }
+
+    if (pageIndex >= printableLevels.size()) {
+      return NO_SUCH_PAGE;
+    }
+
+    Level previousLevel = this.home.getSelectedLevel();
+    try {
+      this.home.setSelectedLevel(printableLevels.get(pageIndex));
+      printSelectedLevel(g, pageFormat, 0, true);
+      return PAGE_EXISTS;
+    } finally {
+      this.home.setSelectedLevel(previousLevel);
+    }
+  }
+
+  private int printSelectedLevel(Graphics g, PageFormat pageFormat,
+                                 int pageIndex, boolean forceFitToPage) {
     List<Selectable> printedItems = getPaintedItems(); 
     Rectangle2D printedItemBounds = getItemsBounds(g, printedItems);
     if (printedItemBounds != null) {
@@ -2020,8 +2087,10 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
       float columnIndex;
       int pagesPerRow;
       int pagesPerColumn;
-      if (this.home.getPrint() == null || this.home.getPrint().getPlanScale() == null) {
-        // Compute a scale that ensures the plan will fill the component if plan scale is null
+      if (forceFitToPage
+              || this.home.getPrint() == null
+              || this.home.getPrint().getPlanScale() == null) {
+        // Compute a scale that fits the plan onto one page.
         printScale = getPrintPreferredScale(g, pageFormat) * LengthUnit.centimeterToInch(72);
         if (pageIndex > 0) {
           return NO_SUCH_PAGE;
